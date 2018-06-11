@@ -16,44 +16,43 @@ public class Test {
 
         Thread.sleep(3000);
 
-        List<WebElement> list = new ArrayList<WebElement>();
-        WebElement dashboard = driver.findElement(By.linkText("Dashboard"));
-        list.add(dashboard);
-        WebElement orders= driver.findElement(By.linkText("Заказы"));
-        list.add(orders);
-        WebElement catalog= driver.findElement(By.linkText("Каталог"));
-        list.add(catalog);
-        WebElement clients= driver.findElement(By.linkText("Клиенты"));
-        list.add(clients);
-        WebElement support= driver.findElement(By.linkText("Служба поддержки"));
-        list.add(support);
-        WebElement statisticts= driver.findElement(By.linkText("Статистика"));
-        list.add(statisticts);
-        WebElement modules = driver.findElement(By.linkText("Modules"));
-        list.add(modules);
-        WebElement design = driver.findElement(By.linkText("Design"));
-        list.add(design);
-        WebElement delivery= driver.findElement(By.linkText("Доставка"));
-        list.add(delivery);
-        WebElement paymentMethod= driver.findElement(By.linkText("Способ оплаты"));
-        list.add(paymentMethod);
-        WebElement international= driver.findElement(By.linkText("International"));
-        list.add(international);
-        WebElement shopParameters = driver.findElement(By.linkText("Shop Parameters"));
-        list.add(shopParameters);
-        WebElement configuration= driver.findElement(By.linkText("Конфигурация"));
-        list.add(configuration);
 
+        String[] mainMenuItems = {
+                "Dashboard",
+                "Заказы", "Каталог", "Клиенты", "Служба поддержки", "Статистика",
+                "Modules", "Design", "Доставка", "Способ оплаты", "International",
+                "Shop Parameters", "Конфигурация"};
 
-        for (WebElement button : list) {
-            button.click();
-            System.out.println("The page title is: " + driver.getTitle());
+        for (String menuItemText: mainMenuItems) {
+            System.out.printf("Check '%s' menu item. ", menuItemText);
+            Optional<WebElement> item = driver.findElements(By.linkText(menuItemText))
+                    .stream()
+                    .filter(WebElement::isDisplayed)
+                    .findFirst();
+            if (!item.isPresent()) {
+                System.out.printf("Menu item '%s' is not found!\n", menuItemText);
+                continue;
+            }
+
+            item.get().click();
+            Thread.sleep(3000);
+
+            String PageTitle =  driver.getTitle();
             driver.navigate().refresh();
+            String PageTitle1 = driver.getTitle();
+            if (!PageTitle.equals(PageTitle1)){
+                System.out.println("The page title is not verifyed!");
+            }
+            else
             System.out.println("The page title is: " + driver.getTitle());
             Thread.sleep(3000);
+
+        }
+        logOut(driver);
+        Thread.sleep(3000);
+        driver.quit();
         }
 
-    }
 
     private static void autorize(WebDriver driver) {
         driver.navigate().to("http://prestashop-automation.qatestlab.com.ua/admin147ajyvk0/");
@@ -61,8 +60,14 @@ public class Test {
         driver.findElement(By.name("passwd")).sendKeys("Xcg7299bnSmMuRLp9ITw");
         driver.findElement(By.name("submitLogin")).click();
     }
+    private static void logOut(WebDriver driver) throws InterruptedException {
 
+        driver.findElement(By.xpath("//*[@id='employee_infos']/a/span")).click();
+        Thread.sleep(3000);
+        driver.findElement(By.xpath("//*[@id='header_logout']")).click();
 
+    }
+    
     public static WebDriver GetWebDriver() {
         System.setProperty("webdriver.chrome.driver", Test.class.getResource("chromedriver.exe").getPath());
         return new ChromeDriver();
